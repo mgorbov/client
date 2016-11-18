@@ -1,0 +1,8 @@
+<div ng-controller="ItemsCtrl as items">
+    <div id="category-grid" ui-grid="items.categoryGridOptions" class="category-grid"
+         ui-grid-selection ui-grid-tree-view ui-grid-auto-resize></div>
+    <div id="items-grid" ui-grid="items.itemsGridOptions" class="items-grid"
+         ui-grid-auto-resize ui-grid-selection></div>
+    <div id="cart-grid" ui-grid="items.cartGridOptions" class="cart-grid"
+         ui-grid-auto-resize ui-grid-edit ui-grid-cellnav></div>
+</div>
