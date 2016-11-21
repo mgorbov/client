@@ -1,21 +1,22 @@
-function ItemsCtrl($timeout, $http) {
+angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http', 'uiGridConstants',
+  function ($scope, $timeout, $http, uiGridConstants) {
 
-    this.allItems = [];
-    prepareItemGrid(this, $http);
-    prepareCategoryGrid(this, $http);
-    prepareCartGrid(this, $timeout);
+    var allItems = [];
 
-}
+    prepareItemGrid();
+    prepareCategoryGrid();
+    prepareCartGrid();
 
-function prepareItemGrid(items, $http) {
-    items.itemsGridScopeProvider = {
+    function prepareItemGrid() {
+
+      $scope.itemsGridScopeProvider = {
         gridRowClick: function(rowItem) {
-            items.cartGridOptions.data.unshift(rowItem.entity);
-            items.focusOnAmount();
+          $scope.cartGridOptions.data.unshift(rowItem.entity);
+          $scope.focusOnAmount();
         }
-    };
+      };
 
-    items.itemsGridOptions = {
+      $scope.itemsGridOptions = {
         enableFiltering: true,
         flatEntityAccess: true,
         fastWatch: true,
@@ -25,51 +26,49 @@ function prepareItemGrid(items, $http) {
         enableRowHeaderSelection: false,
         noUnselect: true,
         columnDefs: [
-            {name: 'Код', field: 'code', width: '10%'},
-            {name: 'Артикул', field: 'article', width: '10%'},
-            {name: 'Наименование', field: 'name', width: '60%'},
-            {name: 'Цена', field: 'price', width: '10%', enableFiltering: false},
-            {name: 'Остаток', field: 'stock', width: '10%', enableFiltering: false}
+          {name: 'Код', field: 'code', width: '10%'},
+          {name: 'Артикул', field: 'article', width: '10%'},
+          {name: 'Наименование', field: 'name', width: '60%'},
+          {name: 'Цена', field: 'price', width: '10%', enableFiltering: false},
+          {name: 'Остаток', field: 'stock', width: '10%', enableFiltering: false}
         ],
-        appScopeProvider: items.itemsGridScopeProvider,
+        appScopeProvider: $scope.itemsGridScopeProvider,
         rowTemplate: '<div ng-dblclick="grid.appScope.gridRowClick(row)" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid" ' +
-        'class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }"  ui-grid-cell></div>'
-    };
+        'class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }"  ui-grid-cell></div>',
+        data: []
+      };
 
-
-    $http.get("data/items.json").then(function(response) {
-        items.itemsGridOptions.data = response.data;
-        items.allItems = response.data
-    });
-}
-
-function prepareCategoryGrid(items, $http) {
-
-    function filterItems(CategoriesRow) {
-        function getChildrenCategories(row) {
-            var children = row.treeNode.children;
-            if (children.length) {
-                children.forEach(function (child) {
-                    getChildrenCategories(child.row)
-                });
-            } else {
-                ids.push(row.entity.id);
-            }
-        }
-
-
-        if (CategoriesRow.isSelected){
-            var ids = [];
-            getChildrenCategories(CategoriesRow);
-            items.itemsGridOptions.data = items.allItems.filter(function (item) {
-                return ids.indexOf(item.categoryId) >= 0
-            });
-        } else {
-            items.itemsGridOptions.data = items.allItems
-        }
+      $http.get("data/items.json").then(function (response) {
+        $scope.itemsGridOptions.data = response.data;
+        allItems = response.data
+      });
     }
 
-    items.categoryGridOptions = {
+    function getChildrenCategories(row, ids) {
+      var children = row.treeNode.children;
+      if (children.length) {
+        children.forEach(function (child) {
+          getChildrenCategories(child.row, ids)
+        });
+      } else {
+        ids.push(row.entity.id);
+      }
+    }
+
+    function filterItemsByCategory(CategoriesRow) {
+      if (CategoriesRow.isSelected) {
+        var ids = [];
+        getChildrenCategories(CategoriesRow, ids);
+        $scope.itemsGridOptions.data = allItems.filter(function (item) {
+          return ids.indexOf(item.categoryId) >= 0
+        });
+      } else {
+        $scope.itemsGridOptions.data = allItems
+      }
+    }
+
+    function prepareCategoryGrid() {
+      $scope.categoryGridOptions = {
         enableSorting: true,
         enableFiltering: true,
         showTreeExpandNoChildren: false,
@@ -77,51 +76,54 @@ function prepareCategoryGrid(items, $http) {
         enableRowHeaderSelection: false,
         multiSelect: false,
         columnDefs: [
-            {name: 'Категория', field: 'name'}
+          {name: 'Категория', field: 'name'}
         ],
-        onRegisterApi: function(gridApi){
-            gridApi.selection.on.rowSelectionChanged(items, filterItems);
+        onRegisterApi: function (gridApi) {
+          gridApi.selection.on.rowSelectionChanged($scope, filterItemsByCategory)
         },
         data: []
-    };
+      };
 
-    $http.get("data/categories.json").then(function(response) {
-        items.categoryGridOptions.data = response.data
-    });
-}
+      $http.get("data/categories.json").then(function (response) {
+        $scope.categoryGridOptions.data = response.data
+      });
+    }
 
-function prepareCartGrid(items, $timeout) {
-    items.cartGridOptions = {
+    function prepareCartGrid() {
+      $scope.cartGridOptions = {
         enableFiltering: true,
         enableRowSelection: true,
         enableRowHeaderSelection: false,
         multiSelect: false,
         enableCellEditOnFocus: true,
         columnDefs: [
-            {name: 'Код', width: '10%', enableCellEdit: false},
-            {name: 'Артикул', width: '10%', enableCellEdit: false},
-            {name: 'Наименование', width: '50%', enableCellEdit: false},
-            {name: 'Количество', width: '10%', enableFiltering: false},
-            {name: 'Цена', width: '10%', enableCellEdit: false, enableFiltering: false},
-            {name: 'Сумма', width: '10%', enableCellEdit: false, enableFiltering: false}
+          {name: 'Код', field: 'code', width: '10%', enableCellEdit: false},
+          {name: 'Артикул', field: 'article', width: '10%', enableCellEdit: false},
+          {name: 'Наименование', field: 'name', width: '50%', enableCellEdit: false},
+          {name: 'Количество', field: 'amount', width: '10%', enableFiltering: false},
+          {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false},
+          {name: 'Сумма', field: 'sum', width: '10%', enableCellEdit: false, enableFiltering: false}
         ],
-        onRegisterApi: function(gridApi){
-            items.cartGridApi = gridApi;
+        onRegisterApi: function (gridApi) {
+          $scope.cartGridApi = gridApi;
         },
         data: []
-    };
+      };
 
-    items.focusOnAmount = function() {
+      $scope.focusOnAmount = function () {
         $timeout(function() {
-            items.cartGridApi.cellNav.scrollToFocus(
-                items.cartGridOptions.data[0],
-                items.cartGridOptions.columnDefs[3]
-            )
+          $scope.cartGridApi.cellNav.scrollToFocus(
+            $scope.cartGridOptions.data[0],
+            $scope.cartGridOptions.columnDefs[3]
+          )
         }, 100);
-    };
-}
+      };
+    }
+  }
+]);
 
 
-angular
-    .module('ordering')
-    .controller('ItemsCtrl', ItemsCtrl);
+
+
+
+
