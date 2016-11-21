@@ -9,13 +9,17 @@
     <div id="page-wrapper" class="gray-bg" style="height: 1px">
 
         <!-- Page wrapper -->
-        <div ng-include="'views/common/topnavbar.html'"></div>
+        <div ng-include="'core/topnavbar.html'"></div>
 
         <!-- Main view  -->
         <div ui-view class="fh-no-breadcrumb"></div>
 
         <!-- Footer -->
-        <div ng-include="'views/common/footer.html'"></div>
+        <div class="footer">
+            <div>
+                <strong>Copyright</strong> Example Company &copy; 2015-2017
+            </div>
+        </div>
 
     </div>
     <!-- End page wrapper-->
