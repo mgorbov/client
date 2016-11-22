@@ -100,12 +100,17 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
           {name: 'Код', field: 'code', width: '10%', enableCellEdit: false},
           {name: 'Артикул', field: 'article', width: '10%', enableCellEdit: false},
           {name: 'Наименование', field: 'name', width: '50%', enableCellEdit: false},
-          {name: 'Количество', field: 'amount', width: '10%', enableFiltering: false},
+          {name: 'Количество', field: 'amount', width: '10%', enableFiltering: false, type: 'number'},
           {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false},
           {name: 'Сумма', field: 'sum', width: '10%', enableCellEdit: false, enableFiltering: false}
         ],
         onRegisterApi: function (gridApi) {
-          $scope.cartGridApi = gridApi;
+          $scope.cartGridApi = gridApi
+          gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
+            if (rowEntity.amount){
+              rowEntity.sum = rowEntity.amount * rowEntity.price;
+            }
+          });
         },
         data: []
       };

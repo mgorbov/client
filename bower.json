@@ -6,5 +6,11 @@
   "description": "",
   "main": "",
   "license": "MIT",
-  "homepage": ""
+  "homepage": "",
+  "dependencies": {
+    "angular": "1.4.14",
+    "angular-animate": "1.4.14",
+    "angular-touch": "1.4.14",
+    "font-awesome": "^4.7.0"
+  }
 }

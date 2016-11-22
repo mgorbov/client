@@ -1,8 +1,6 @@
 (function () {
     angular.module('ordering', [
         'ui.router',                    // Routing
-        'oc.lazyLoad',                  // ocLazyLoad
-        'ui.bootstrap',                 // Ui Bootstrap
         'ngAnimate',
         'ngTouch',
         'ui.grid',
