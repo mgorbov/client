@@ -1,33 +1,87 @@
-/*.items-grid {*/
-  /*position: absolute;*/
-  /*left: 20%;*/
-  /*right: 20px;*/
-  /*top: 50px;*/
-  /*bottom: 25%;*/
-  /*margin-left: 15px;*/
-/*}*/
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700");
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,300,500,700");
 
-/*.category-grid {*/
-  /*position: absolute;*/
-  /*left: 20px;*/
-  /*right: 80%;*/
-  /*top: 50px;*/
-  /*bottom: 25%;*/
-/*}*/
+#items-grid .ui-grid-render-container-body .ui-grid-viewport {
+  overflow-x: auto !important; //remove horizontal scrollbar if not necessary
+}
 
-/*.cart-grid {*/
-  /*position: absolute;*/
-  /*left: 120px;*/
-  /*right: 20px;*/
-  /*top: 75%;*/
-  /*bottom: 10px;*/
-  /*margin-top: 15px;*/
-/*}*/
+#cart-grid .ui-grid-render-container-body .ui-grid-viewport {
+  overflow-x: auto !important; //remove horizontal scrollbar if not necessary
+}
+
+.btn-primary {
+  background-color: #1ab394;
+  border-color: #1ab394;
+  color: #fff;
+}
+
+.bt-cr-order {
+  position: absolute;
+  left: 20px;
+  right: 105px;
+  top: 75%;
+  bottom: 10px;
+  margin-top: 15px;
+}
+
+.items-grid {
+  position: absolute;
+  left: 20%;
+  right: 20px;
+  top: 50px;
+  bottom: 25%;
+  margin-left: 15px;
+  margin-top: 15px;
+}
+
+.category-grid {
+  position: absolute;
+  left: 20px;
+  right: 80%;
+  top: 50px;
+  bottom: 25%;
+  margin-top: 15px;
+}
+
+.cart-grid {
+  position: absolute;
+  left: 120px;
+  right: 20px;
+  top: 75%;
+  bottom: 10px;
+  margin-top: 15px;
+}
+
+.nav > li a:hover,
+.nav > li a:focus {
+  background: #fff;
+  color: #1ab394;
+}
+
+.navbar {
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.navbar-right {
+  margin-right: 10px;
+}
+
+.bg-white {
+  background-color: #ffffff;
+}
 
 .nav > li > a {
-  color: #a7b1c2;
+  padding: 15px 20px;
+  color: #676a6c;
   font-weight: 600;
-  padding: 14px 20px 14px 25px;
+}
+
+.nav > li > a i {
+  margin-right: 6px;
+}
+
+.nav > li.active > a {
+  color: #1ab394;
 }
 
 body {
@@ -35,6 +89,7 @@ body {
   font-size: 13px;
   color: #676a6c;
   overflow-x: hidden;
+  background-color: #f3f3f4;
 }
 
 .nopadding {
