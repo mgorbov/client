@@ -1,17 +1,18 @@
 <div ng-controller="ItemsCtrl">
     <div id="category-grid" ui-grid="categoryGridOptions" class="category-grid"
          ui-grid-selection ui-grid-tree-view ui-grid-auto-resize></div>
+    <ng-keypress ng-keypress="kPressOnItems">
+        <div id="items-grid" ui-grid="itemsGridOptions" class="items-grid"
+            ui-grid-auto-resize ui-grid-selection></div>
+    </ng-keypress>
 
-    <div id="items-grid" ui-grid="itemsGridOptions" class="items-grid"
-         ui-grid-auto-resize ui-grid-selection></div>
 
     <div class="bt-cr-order">
         <button class="btn btn-primary">Заказать</button>
     </div>
 
-
     <div id="cart-grid" ui-grid="cartGridOptions" class="cart-grid"
-         ui-grid-auto-resize ui-grid-edit ui-grid-cellnav></div>
+         ui-grid-auto-resize ui-grid-edit ui-grid-cellnav ui-grid-importer></div>
 </div>
 
 

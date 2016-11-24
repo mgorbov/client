@@ -9,6 +9,10 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
 
     function prepareItemGrid() {
 
+      $scope.kPressOnItems = function ($event) {
+        console.log($event)
+      };
+
       $scope.itemsGridScopeProvider = {
         gridRowClick: function(rowItem) {
           $scope.cartGridOptions.data.unshift(rowItem.entity);
@@ -17,6 +21,7 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
       };
 
       $scope.itemsGridOptions = {
+        enableColumnMenus: false,
         enableFiltering: true,
         flatEntityAccess: true,
         fastWatch: true,
@@ -24,6 +29,7 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         multiSelect: false,
         enableSelectAll: false,
         enableRowHeaderSelection: false,
+        rowHeight: 25,
         noUnselect: true,
         columnDefs: [
           {name: 'Код', field: 'code', width: '10%'},
@@ -69,12 +75,15 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
 
     function prepareCategoryGrid() {
       $scope.categoryGridOptions = {
+        enableColumnMenus: false,
         enableSorting: true,
         enableFiltering: true,
+        enableColumnMenu: false,
         showTreeExpandNoChildren: false,
         enableRowSelection: true,
         enableRowHeaderSelection: false,
         multiSelect: false,
+        rowHeight: 25,
         columnDefs: [
           {name: 'Категория', field: 'name'}
         ],
@@ -91,26 +100,32 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
 
     function prepareCartGrid() {
       $scope.cartGridOptions = {
+        enableColumnMenus: false,
+        enableGridMenu: true,
         enableFiltering: true,
         enableRowSelection: true,
         enableRowHeaderSelection: false,
         multiSelect: false,
         enableCellEditOnFocus: true,
+        rowHeight: 25,
         columnDefs: [
           {name: 'Код', field: 'code', width: '10%', enableCellEdit: false},
           {name: 'Артикул', field: 'article', width: '10%', enableCellEdit: false},
           {name: 'Наименование', field: 'name', width: '50%', enableCellEdit: false},
           {name: 'Количество', field: 'amount', width: '10%', enableFiltering: false, type: 'number'},
-          {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false},
+          {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false },
           {name: 'Сумма', field: 'sum', width: '10%', enableCellEdit: false, enableFiltering: false}
         ],
         onRegisterApi: function (gridApi) {
-          $scope.cartGridApi = gridApi
+          $scope.cartGridApi = gridApi;
           gridApi.edit.on.afterCellEdit($scope, function(rowEntity, colDef, newValue, oldValue){
             if (rowEntity.amount){
               rowEntity.sum = rowEntity.amount * rowEntity.price;
             }
           });
+        },
+        importerDataAddCallback: function (grid, newObjects) {
+          $scope.cartGridOptions.data = $scope.cartGridOptions.data.concat(newObjects);
         },
         data: []
       };

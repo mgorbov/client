@@ -8,7 +8,8 @@
         'ui.grid.treeView',
         'ui.grid.selection',
         'ui.grid.edit',
-        'ui.grid.cellNav'
+        'ui.grid.cellNav',
+        'ui.grid.importer'
     ])
 })();
 

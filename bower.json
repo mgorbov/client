@@ -11,6 +11,7 @@
     "angular": "1.4.14",
     "angular-animate": "1.4.14",
     "angular-touch": "1.4.14",
-    "font-awesome": "^4.7.0"
+    "font-awesome": "^4.7.0",
+    "CSV-JS": "csv-js#^1.1.1"
   }
 }
