@@ -1,5 +1,5 @@
-angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http', 'uiGridConstants',
-  function ($scope, $timeout, $http, uiGridConstants) {
+angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http',
+  function ($scope, $timeout, $http) {
 
     var allItems = [];
 
@@ -10,20 +10,34 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
     function prepareItemGrid() {
 
       $scope.itemsGridScopeProvider = {
-        gridRowClick: function(rowItem) {
-          $scope.cartGridOptions.data.unshift(rowItem.entity);
-          $scope.focusOnAmount();
+        gridRowClick: function (rowItem) {
+          var index = $scope.cartGridOptions.data.indexOf(rowItem.entity);
+          var entity;
+
+          if (index >= 0) {
+            entity = $scope.cartGridOptions.data[index];
+            $scope.cartGridOptions.data.splice(index, 1);
+          }else{
+            entity = rowItem.entity;
+          }
+
+          index = $scope.cartGridOptions.data.length;
+          $scope.cartGridOptions.data.push(entity);
+
+          $scope.focusOnAmount(index);
         }
       };
 
       $scope.itemsGridOptions = {
+        enableColumnMenus: false,
         enableFiltering: true,
-        flatEntityAccess: true,
+        // flatEntityAccess: true,
         fastWatch: true,
         enableRowSelection: true,
         multiSelect: false,
         enableSelectAll: false,
         enableRowHeaderSelection: false,
+        rowHeight: 25,
         noUnselect: true,
         columnDefs: [
           {name: 'Код', field: 'code', width: '10%'},
@@ -32,9 +46,23 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
           {name: 'Цена', field: 'price', width: '10%', enableFiltering: false},
           {name: 'Остаток', field: 'stock', width: '10%', enableFiltering: false}
         ],
+        onRegisterApi: function (gridApi) {
+          $scope.itemsGridApi = gridApi;
+          gridApi.cellNav.on.navigate($scope, function (newRowCol, oldRowCol) {
+            gridApi.selection.selectRow(newRowCol.row.entity);
+          });
+          gridApi.cellNav.on.viewPortKeyDown($scope, function (event, newRowCol) {
+            var row = newRowCol.row;
+            if (event.keyCode === 13) {
+              $scope.itemsGridScopeProvider.gridRowClick(row);
+            }
+          });
+        },
+        keyDownOverrides: [{keyCode: 39, ctrlKey: false}],
         appScopeProvider: $scope.itemsGridScopeProvider,
         rowTemplate: '<div ng-dblclick="grid.appScope.gridRowClick(row)" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid" ' +
         'class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }"  ui-grid-cell></div>',
+
         data: []
       };
 
@@ -42,6 +70,16 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         $scope.itemsGridOptions.data = response.data;
         allItems = response.data
       });
+    }
+
+    function focusOnItemRow() {
+      $timeout(function () {
+        var selected = $scope.itemsGridApi.cellNav.getCurrentSelection();
+        $scope.itemsGridApi.cellNav.scrollToFocus(
+          selected[0].row.entity,
+          $scope.itemsGridOptions.columnDefs[1]
+        )
+      }, 100)
     }
 
     function getChildrenCategories(row, ids) {
@@ -69,12 +107,15 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
 
     function prepareCategoryGrid() {
       $scope.categoryGridOptions = {
+        enableColumnMenus: false,
         enableSorting: true,
         enableFiltering: true,
+        enableColumnMenu: false,
         showTreeExpandNoChildren: false,
         enableRowSelection: true,
         enableRowHeaderSelection: false,
         multiSelect: false,
+        rowHeight: 25,
         columnDefs: [
           {name: 'Категория', field: 'name'}
         ],
@@ -91,33 +132,50 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
 
     function prepareCartGrid() {
       $scope.cartGridOptions = {
+        gridMenuShowHideColumns: false,
+        enableColumnMenus: false,
+        enableGridMenu: true,
         enableFiltering: true,
         enableRowSelection: true,
         enableRowHeaderSelection: false,
         multiSelect: false,
         enableCellEditOnFocus: true,
+        rowHeight: 25,
         columnDefs: [
           {name: 'Код', field: 'code', width: '10%', enableCellEdit: false},
           {name: 'Артикул', field: 'article', width: '10%', enableCellEdit: false},
           {name: 'Наименование', field: 'name', width: '50%', enableCellEdit: false},
-          {name: 'Количество', field: 'amount', width: '10%', enableFiltering: false},
+          {name: 'Количество', field: 'amount', width: '10%', enableFiltering: false, type: 'number'},
           {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false},
           {name: 'Сумма', field: 'sum', width: '10%', enableCellEdit: false, enableFiltering: false}
         ],
         onRegisterApi: function (gridApi) {
           $scope.cartGridApi = gridApi;
+          gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+            if (rowEntity.amount) {
+              rowEntity.sum = rowEntity.amount * rowEntity.price;
+            }
+            focusOnItemRow();
+          });
+        },
+        importerDataAddCallback: function (grid, newObjects) {
+          $scope.cartGridOptions.data = $scope.cartGridOptions.data.concat(newObjects);
         },
         data: []
       };
 
-      $scope.focusOnAmount = function () {
-        $timeout(function() {
+      $scope.focusOnAmount = function (index) {
+        $timeout(function () {
           $scope.cartGridApi.cellNav.scrollToFocus(
-            $scope.cartGridOptions.data[0],
+            $scope.cartGridOptions.data[index],
             $scope.cartGridOptions.columnDefs[3]
           )
         }, 100);
       };
+    }
+
+    $scope.createOrder = function createOrder() {
+
     }
   }
 ]);

@@ -1,28 +1,9 @@
 <!-- Wrapper-->
-<div id="wrapper" ng-init="fix_height()">
+<div>
+    <!-- Page wrapper -->
+    <div ng-include="'core/topnavbar.html'"></div>
 
-    <!-- Navigation -->
-    <!--<div ng-include="'views/common/navigation.html'"></div>-->
-
-    <!-- Page wraper -->
-    <!-- ng-class with current state name give you the ability to extended customization your view -->
-    <div id="page-wrapper" class="gray-bg" style="height: 1px">
-
-        <!-- Page wrapper -->
-        <div ng-include="'core/topnavbar.html'"></div>
-
-        <!-- Main view  -->
-        <div ui-view class="fh-no-breadcrumb"></div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <div>
-                <strong>Copyright</strong> Example Company &copy; 2015-2017
-            </div>
-        </div>
-
-    </div>
-    <!-- End page wrapper-->
-
+    <!-- Main view  -->
+    <div ui-view class="container-fluid"></div>
 </div>
 <!-- End wrapper-->
