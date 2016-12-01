@@ -1,7 +1,7 @@
 angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http',
   function ($scope, $timeout, $http) {
 
-    var allItems = [];
+    $scope.categoryIds = [];
 
     prepareItemGrid();
     prepareCategoryGrid();
@@ -42,32 +42,39 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
             }
             calcTotalSum()
           });
+          gridApi.grid.registerRowsProcessor( $scope.categoryFilter, 200 );
         },
         data: $scope.$parent.itemsGridData
       };
     }
 
-    function getChildrenCategories(row, ids) {
+    $scope.categoryFilter = function (renderedRows) {
+      if ($scope.categoryIds.length > 0)
+        renderedRows.forEach(function (row) {
+          if ($scope.categoryIds.indexOf(row.entity.categoryId) === -1){
+            row.visible = false;
+          }
+        });
+
+      return renderedRows;
+    };
+
+    function getChildrenCategories(row) {
       var children = row.treeNode.children;
+      $scope.categoryIds.push(row.entity.id);
       if (children.length) {
         children.forEach(function (child) {
-          getChildrenCategories(child.row, ids)
+          getChildrenCategories(child.row)
         });
-      } else {
-        ids.push(row.entity.id);
       }
     }
 
-    function filterItemsByCategory(CategoriesRow) {
-      if (CategoriesRow.isSelected) {
-        var ids = [];
-        getChildrenCategories(CategoriesRow, ids);
-        $scope.itemsGridOptions.data = allItems.filter(function (item) {
-          return ids.indexOf(item.categoryId) >= 0
-        });
-      } else {
-        $scope.itemsGridOptions.data = allItems
+    function onCategoryChange(categoriesRow) {
+      $scope.categoryIds = [];
+      if (categoriesRow.isSelected) {
+        getChildrenCategories(categoriesRow);
       }
+      $scope.itemsGridApi.grid.refresh();
     }
 
     function prepareCategoryGrid() {
@@ -85,7 +92,7 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
           {name: 'Категория', field: 'name'}
         ],
         onRegisterApi: function (gridApi) {
-          gridApi.selection.on.rowSelectionChanged($scope, filterItemsByCategory)
+          gridApi.selection.on.rowSelectionChanged($scope, onCategoryChange)
         },
         data: []
       };
@@ -126,7 +133,7 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
           {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false},
           {name: 'Сумма', field: 'sum', width: '10%', enableCellEdit: false, enableFiltering: false}
         ],
-        onRegisterApi: function (gridApi) {
+        onRegisterApi: function (gridApi) {k
           $scope.cartGridApi = gridApi;
           gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
             calcSum(rowEntity);
