@@ -40,15 +40,11 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
               rowEntity.amount = '';
               $scope.cartGridOptions.data.splice(index, 1)
             }
+            calcTotalSum()
           });
         },
-        data: []
+        data: $scope.$parent.itemsGridData
       };
-
-      $http.get("data/items.json").then(function (response) {
-        $scope.itemsGridOptions.data = response.data;
-        allItems = response.data
-      });
     }
 
     function getChildrenCategories(row, ids) {
@@ -104,6 +100,12 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         row.sum = row.amount * row.price;
       }
     }
+    
+    function calcTotalSum() {
+      $scope.$parent.totalSum =  $scope.cartGridOptions.data.reduce(function (sum, row) {
+        return sum + row.sum;
+      }, 0)
+    }
 
     function prepareCartGrid() {
       $scope.cartGridOptions = {
@@ -127,13 +129,14 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         onRegisterApi: function (gridApi) {
           $scope.cartGridApi = gridApi;
           gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
-            calcSum(rowEntity)
+            calcSum(rowEntity);
+            calcTotalSum();
           });
         },
         importerDataAddCallback: function (grid, newObjects) {
           $scope.cartGridOptions.data = $scope.cartGridOptions.data.concat(newObjects);
         },
-        data: []
+        data: $scope.$parent.cartGridData
       };
     }
 

@@ -6,7 +6,15 @@
          ui-grid-auto-resize ui-grid-selection ui-grid-cellnav ui-grid-edit></div>
 
     <div class="bt-cr-order">
-        <button class="btn btn-primary" ng-click="createOrder">Заказать</button>
+        <div class="row">
+            <div class="col-xs-3">
+                <button class="btn btn-primary" ng-click="createOrder">Сформировать заказ</button>
+            </div>
+            <div class="col-xs-4 text-left" ng-show="$parent.totalSum > 0">
+                <h4>На сумму {{$parent.totalSum}}</h4>
+            </div>
+        </div>
+
     </div>
 
     <div id="cart-grid" ui-grid="cartGridOptions" class="cart-grid"

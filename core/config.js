@@ -15,7 +15,7 @@ function config($stateProvider, $urlRouterProvider) {
     .state('index.items', {
       url: "/items",
       templateUrl: "core/items/items.html",
-      data: {pageTitle: 'Номенклатура'}
+      data: {pageTitle: 'Номенклатура'},
     })
     .state('index.orders', {
       url: "/orders",
