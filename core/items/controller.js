@@ -8,26 +8,6 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
     prepareCartGrid();
 
     function prepareItemGrid() {
-
-      $scope.itemsGridScopeProvider = {
-        gridRowClick: function (rowItem) {
-          var index = $scope.cartGridOptions.data.indexOf(rowItem.entity);
-          var entity;
-
-          if (index >= 0) {
-            entity = $scope.cartGridOptions.data[index];
-            $scope.cartGridOptions.data.splice(index, 1);
-          }else{
-            entity = rowItem.entity;
-          }
-
-          index = $scope.cartGridOptions.data.length;
-          $scope.cartGridOptions.data.push(entity);
-
-          $scope.focusOnAmount(index);
-        }
-      };
-
       $scope.itemsGridOptions = {
         enableColumnMenus: false,
         enableFiltering: true,
@@ -40,29 +20,28 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         rowHeight: 25,
         noUnselect: true,
         columnDefs: [
-          {name: 'Код', field: 'code', width: '10%'},
-          {name: 'Артикул', field: 'article', width: '10%'},
-          {name: 'Наименование', field: 'name', width: '60%'},
+          {name: 'Код', field: 'code', width: '10%', enableCellEdit: false},
+          {name: 'Артикул', field: 'article', width: '10%', enableCellEdit: false},
+          {name: 'Наименование', field: 'name', width: '50%', enableCellEdit: false},
           {name: 'Цена', field: 'price', width: '10%', enableFiltering: false},
-          {name: 'Остаток', field: 'stock', width: '10%', enableFiltering: false}
+          {name: 'Заказано', field: 'amount', width: '10%', enableFiltering: false, enableCellEdit: true, type: 'number'},
+          {name: 'Остаток', field: 'stock', width: '10%', enableFiltering: false, enableCellEdit: false}
         ],
         onRegisterApi: function (gridApi) {
           $scope.itemsGridApi = gridApi;
-          gridApi.cellNav.on.navigate($scope, function (newRowCol, oldRowCol) {
-            gridApi.selection.selectRow(newRowCol.row.entity);
-          });
-          gridApi.cellNav.on.viewPortKeyDown($scope, function (event, newRowCol) {
-            var row = newRowCol.row;
-            if (event.keyCode === 13) {
-              $scope.itemsGridScopeProvider.gridRowClick(row);
+          gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+            var index = $scope.cartGridOptions.data.indexOf(rowEntity);
+            if (rowEntity.amount > 0){
+              calcSum(rowEntity);
+              if (index === -1) {
+                $scope.cartGridOptions.data.push(rowEntity);
+              }
+            } else {
+              rowEntity.amount = '';
+              $scope.cartGridOptions.data.splice(index, 1)
             }
           });
         },
-        keyDownOverrides: [{keyCode: 39, ctrlKey: false}],
-        appScopeProvider: $scope.itemsGridScopeProvider,
-        rowTemplate: '<div ng-dblclick="grid.appScope.gridRowClick(row)" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid" ' +
-        'class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }"  ui-grid-cell></div>',
-
         data: []
       };
 
@@ -70,16 +49,6 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         $scope.itemsGridOptions.data = response.data;
         allItems = response.data
       });
-    }
-
-    function focusOnItemRow() {
-      $timeout(function () {
-        var selected = $scope.itemsGridApi.cellNav.getCurrentSelection();
-        $scope.itemsGridApi.cellNav.scrollToFocus(
-          selected[0].row.entity,
-          $scope.itemsGridOptions.columnDefs[1]
-        )
-      }, 100)
     }
 
     function getChildrenCategories(row, ids) {
@@ -130,6 +99,12 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
       });
     }
 
+    function calcSum(row) {
+      if (row.amount) {
+        row.sum = row.amount * row.price;
+      }
+    }
+
     function prepareCartGrid() {
       $scope.cartGridOptions = {
         gridMenuShowHideColumns: false,
@@ -152,25 +127,13 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
         onRegisterApi: function (gridApi) {
           $scope.cartGridApi = gridApi;
           gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
-            if (rowEntity.amount) {
-              rowEntity.sum = rowEntity.amount * rowEntity.price;
-            }
-            focusOnItemRow();
+            calcSum(rowEntity)
           });
         },
         importerDataAddCallback: function (grid, newObjects) {
           $scope.cartGridOptions.data = $scope.cartGridOptions.data.concat(newObjects);
         },
         data: []
-      };
-
-      $scope.focusOnAmount = function (index) {
-        $timeout(function () {
-          $scope.cartGridApi.cellNav.scrollToFocus(
-            $scope.cartGridOptions.data[index],
-            $scope.cartGridOptions.columnDefs[3]
-          )
-        }, 100);
       };
     }
 
