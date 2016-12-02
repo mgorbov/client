@@ -133,7 +133,7 @@ angular.module('ordering').controller('ItemsCtrl', ['$scope', '$timeout', '$http
           {name: 'Цена', field: 'price', width: '10%', enableCellEdit: false, enableFiltering: false},
           {name: 'Сумма', field: 'sum', width: '10%', enableCellEdit: false, enableFiltering: false}
         ],
-        onRegisterApi: function (gridApi) {k
+        onRegisterApi: function (gridApi) {
           $scope.cartGridApi = gridApi;
           gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
             calcSum(rowEntity);
